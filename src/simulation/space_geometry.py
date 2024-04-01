@@ -27,22 +27,16 @@ class InteractionVolume:
             return point[2] - self.origin[2]  # Assuming photon moves in the z direction
         
     def rotate_vector(self, original_vector, theta, phi):
-        """
-        Rotate the original vector by the given angles.
-        
-        :param original_vector: The original vector to rotate.
-        :param theta: The polar angle.
-        :param phi: The azimuthal angle.
-        :return: The rotated vector.
-        """
-        # Convert from spherical to Cartesian coordinates
-        r = np.linalg.norm(original_vector)
-        stheta = r * np.cos(theta)
-        r_xy = r * np.sin(theta)
-        x = r_xy * np.cos(phi)
-        y = r_xy * np.sin(phi)
-        z = stheta
+        original_vector = np.array([1/np.sqrt(2), 1/np.sqrt(2), 0])
+        # Extraer las componentes individuales del vector original.
+        u, v, w = original_vector
 
-        # The new Cartesian coordinates are the rotated vector
-        rotated_vector = np.array([x, y, z])
-        return rotated_vector
+        # Cálculo de los nuevos componentes del vector después de la rotación.
+        u_prime = u * np.cos(theta) + (v * np.cos(phi) - w * np.sin(phi)) * np.sin(theta) / np.sqrt(1 - w**2)
+        v_prime = v * np.cos(theta) + (w * np.cos(phi) + u * np.sin(phi)) * np.sin(theta) / np.sqrt(1 - w**2)
+        w_prime = w * np.cos(theta) - np.sqrt(1 - w**2) * np.sin(theta) * np.cos(phi)
+    
+        # La nueva dirección del vector como array de numpy.
+        new_direction = np.array([u_prime, v_prime, w_prime])
+
+        return new_direction

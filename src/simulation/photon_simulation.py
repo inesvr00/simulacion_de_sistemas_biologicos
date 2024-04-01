@@ -87,15 +87,16 @@ class PhotonProperties:
         :param s: Distance to move the photon.
         :return: A boolean indicating if the photon has left the interaction volume.
         """
-        self.position = tuple(np.array(self.position) + s * np.array(self.direction))
+        position = tuple(np.array(self.position) + s * np.array(self.direction))
 
-        return self.position[2] > 0  # Returns False if the photon has left the interaction volume
+        return position  # Returns False if the photon has left the interaction volume
     
     def simulate_photoelectron_emission(self, photoelectron_energy):
         mc2 = 510.999  # rest mass energy of electron in keV
         beta = math.sqrt(photoelectron_energy * (photoelectron_energy + 2 * mc2)) / (photoelectron_energy + mc2)
         A = 1 / beta - 1
         gamma = 1 + photoelectron_energy / mc2
+        U2 = -1000
 
         def g(v):
             return (2 - v) * (1 / (A + v) + 1 / 2 + beta * gamma * (v - 1) * (gamma - 2))
@@ -104,22 +105,13 @@ class PhotonProperties:
         
         while True:
             U1 = random.uniform(0, 1)
-            argument = ((A + 2)**2 - 4 * U1 * (A + 2) * U1)
+            v = 2 * A / ((A + 2)**2 - 4 * U1 * (A + 2) * U1)  # Esta es la fórmula actualizada de v
+            if 0 <= 1 - v <= 1:  # Esto verifica que arccos(1 - v) es un número real
+                U2 = random.uniform(0, 1)
+                if U2 <= g(v):  # Si U2 es menor o igual que g(v), aceptamos v
+                    break  # Salimos del bucle
 
-            if argument >= 0:  # Verifica si el argumento de la raíz cuadrada es no negativo
-                v = (2 * A / argument)**0.5  # Calcula v solo si es seguro que no resultará en un número imaginario
-                break 
-        # Sampling U2 and checking g(v)
-        U2 = random.uniform(0, 1)
-        while U2 >= g(v):
-            U1 = random.uniform(0, 1)
-
-            v = (2 * A / ((A + 2)**2 - 4 * U1 * (A + 2) * U1))**0.5
-
-            U2 = random.uniform(0, 1)
-
-        
-        theta_e = math.acos(1 - v)
+        theta_e = math.acos(1 - v)  # Ahora esto no debería generar un ValueError
         
         # Sampling azimuthal emission angle phi_e
         phi_e = 2 * math.pi * random.uniform(0, 1)
@@ -179,7 +171,7 @@ class PhotonProperties:
         def calculate_electron_energy(kappa, cos_theta):
             h = 4.135667696e-18  # Planck constant in keV·s
             c = 29979245800  # Speed of light in cm/s
-            return (h* c * kappa * (1 - cos_theta)) / (1 + kappa * (1 - cos_theta))
+            return (self.energy * kappa * (1 - cos_theta)) / (1 + kappa * (1 - cos_theta))
 
         def calculate_photon_energy(kappa, cos_theta):
             return self.energy / (1 + kappa * (1 - cos_theta))
@@ -192,53 +184,60 @@ class PhotonProperties:
         photon_energy = calculate_photon_energy(kappa, cos_theta )        
         electron_energy = calculate_electron_energy(kappa, cos_theta)
         theta_electron = calculate_electron_angle(photon_energy, cos_theta)
-        print(photon_energy, electron_energy, theta_electron)
         return photon_energy, electron_energy, theta_electron, theta, phi_p, phi_e
         
     def photon_simulation(self):
         continue_simulation = True
+        electron = None
         while continue_simulation:
 
             mu_T = self.attenuation_coefficient_calculation()
             s, U = self.free_way_until_next_interaction(mu_T)
             self.position = self.move_photon(s)
-            if self.position:
+            if self.position[2] > 0:
                 p_photo, p_co = self.simulate_scattering_event(mu_T)
                 if U <= p_photo: # ES <=
+                    print("fotoelectrico")
                     ionized_shell = max((shell_energy for shell_energy in [self.medium.U_K, self.medium.U_L1, self.medium.U_L2] if self.energy >= shell_energy), default=0)
                     if ionized_shell > 0:
                         photoelectron_energy = self.energy - ionized_shell
                     else:
                         print("This scenario is very unlikely.")
                         photoelectron_energy = self.energy
+                        electron = ElectronProperties(photoelectron_energy, self.position, photoelectron_direction)
+                        electron.electron_simulation()
                     if photoelectron_energy > self.medium.E_abs_el:
+                        print("hola")
                         photoelectron_direction = self.simulate_photoelectron_emission(photoelectron_energy)
-                        electron = ElectronProperties(electron_energy, self.position, photoelectron_direction)
-                        continue_simulation = False
-                        return electron # Absorbido
+                        print(photoelectron_energy)
+                        electron = ElectronProperties(photoelectron_energy, self.position, photoelectron_direction)
+                        electron.electron_simulation()
+                        
                     else:
+                        print("hola2")
                         electron = ElectronProperties(self.energy, self.position, self.direction)
-                        print(f"The photon has been absorbed at the emission point.")
-                        continue_simulation = False
-                else:
+                        print(f"The photoelectron has been absorbed at the emission point.")
+                    continue_simulation = False
+                elif U > p_photo:
+                    print("compton")
                     photon_energy, electron_energy, theta_e, theta_p, phi_p, phi_e = self.simulate_compton_scattering()
                     if electron_energy > self.medium.E_abs_el:
                         electron_direction = self.geometry.rotate_vector(self.direction_0, theta_e, phi_e)
                         # Cuidado con las energías, ahora parece que hay que almacenarlas en otros estados iniciales... Tal vez un nuevo objeto de la clase electron y otro de la clase fotón?
                         electron = ElectronProperties(electron_energy, self.position, electron_direction)
-
+                        electron.electron_simulation()
                     else:
                         electron = ElectronProperties(electron_energy, self.position, self.direction)
-
+                        electron.electron_simulation()
                     if photon_energy > self.medium.E_abs_fo:
                         self.energy = photon_energy
-                        self.direction = electron_direction = self.geometry.rotate_vector(self.direction, theta_p, phi_p)       
-                        print("Hola")
+                        self.direction  = self.geometry.rotate_vector(self.direction, theta_p, phi_p)       
                     else:
                         self.energy = photon_energy
                         continue_simulation = False
             else:
                 print(f'Photon exited the permitted space at position {self.position}...')
+                continue_simulation = False
         print(electron, self)
         return electron, self    
     
