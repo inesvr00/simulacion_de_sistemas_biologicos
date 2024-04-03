@@ -228,7 +228,7 @@ class PhotonProperties:
                         electron.electron_simulation()
                     else:
                         electron = ElectronProperties(electron_energy, self.position, self.direction)
-                        electron.electron_simulation()
+
                     if photon_energy > self.medium.E_abs_fo:
                         self.energy = photon_energy
                         self.direction  = self.geometry.rotate_vector(self.direction, theta_p, phi_p)       

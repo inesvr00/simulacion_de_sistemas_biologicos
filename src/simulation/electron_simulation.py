@@ -29,14 +29,14 @@ class ElectronProperties:
         self.A_0 = 2.5 * (math.log10(1000 * self.energy))**4 / (1000 * self.energy)**1.434
         self.mu_c = (1 - math.cos(self.theta_c)) / 2
         self.geometry = geometry
+        self.N =  self.medium.number_density()
+        self.mc2 = 510.999
         
     def __str__(self):
         return f"Electron(Energy={self.energy:.2f} keV, Position={self.position}, Direction={self.direction})"
 
     def attenuation_coefficient_calculation(self, sigma_el_h, sigma_in_h ):
-        N = self.medium.number_density()
-        mu_T = N * (sigma_el_h + sigma_in_h)
-
+        mu_T = self.N * (sigma_el_h + sigma_in_h)
         return mu_T
         
     def effective_section_el(self):
@@ -57,7 +57,10 @@ class ElectronProperties:
             term2 = a * W / self.energy**2
             term3 = 1 / (self.energy - W)
             term4 = ((a - 1) / self.energy) * np.log(W / (self.energy - W))
-            return (term1 + term2 + term3 + term4) 
+            return (term1 + term2 + term3 + term4)
+        print(f"Integrand value 1: {integrand(self.energy / 2)}")
+        print(f"Integrand value 1: {self.W_ci}")
+        
         integrand_value =  integrand(self.energy / 2) - integrand(self.W_ci)
 
         sigma_in_h = 2 * np.pi * re**2 * mc2 / beta**2 * integrand_value
@@ -91,8 +94,7 @@ class ElectronProperties:
     
     def angular_deflection(self, s, sigma_el_h):
         def integrand_deflection(sigma_el_h):
-            N = self.medium.number_density()
-            lambda_el_1 =1/(2 * N * sigma_el_h * self.A_0 * (1 + self.A_0) * (np.log((self.mu_c + self.A_0) / self.A_0) - self.mu_c / (self.mu_c + self.A_0)))
+            lambda_el_1 =1/(2 * self.N * sigma_el_h * self.A_0 * (1 + self.A_0) * (np.log((self.mu_c + self.A_0) / self.A_0) - self.mu_c / (self.mu_c + self.A_0)))
             return lambda_el_1
         chi = np.arccos(np.exp(-s / integrand_deflection(sigma_el_h)))
         phi = 2 * np.pi * random.uniform(0, 1)
@@ -100,7 +102,6 @@ class ElectronProperties:
     
     def calculate_energy_loss(self, s):
         # Constantes y valores del medio
-        N = self.medium.number_density()
         Z = self.medium.atomic_number
         I = self.medium.I
         mc2 = 510.999  # Energía de reposo del electrón en keV
@@ -114,7 +115,7 @@ class ElectronProperties:
         # Corrección de densidad de Fermi 
         delta_f = 0 
 
-        S_s_E = N * Z * 2 * np.pi * re**2 * mc2 / beta**2 * (np.log((self.energy**2/I**2)* (gamma + 1) / 2) + 1 - beta**2 - (2 * gamma - 1)/ gamma**2 * np.log(2) + 1/8 * ((gamma - 1) / gamma)**2 - delta_f)
+        S_s_E = self.N * Z * 2 * np.pi * re**2 * mc2 / beta**2 * (np.log((self.energy**2/I**2)* (gamma + 1) / 2) + 1 - beta**2 - (2 * gamma - 1)/ gamma**2 * np.log(2) + 1/8 * ((gamma - 1) / gamma)**2 - delta_f)
 
         # La pérdida de energía w es simplemente S_s(E) multiplicado por la distancia s
         w = S_s_E * s
@@ -123,37 +124,97 @@ class ElectronProperties:
             return self.energy
         else:
             return w
+        
+    def calculate_p_el(self, sigma_el_h, mu_t):
+        return self.N * sigma_el_h / mu_t
+    
+    def calculate_p_in(self, sigma_in_h, mu_t):
+        return self.N * sigma_in_h / mu_t
+    
+    def calculate_theta(self, U):
+        return self.A_0 * U / (1 + self.A_0 - U)
 
-            
+    def calculate_phi_k(self, k_c, k, a):
+        phi_k = (k**-2 + 5 * a) * np.heaviside(k - k_c, 1) * np.heaviside(1/2 - k, 1)
+        return phi_k
+    
+    def calculate_f_in_k(self, k_c, k, a):
+        f_in_k =(1 / k**2 + 1 / (1 - k)**2 - 1 / (k * (1-k)) + a * (1 + 1 / (k * (1 - k)))) * np.heaviside(k - k_c, 1) * np.heaviside(1/2 - k, 1)
+        return f_in_k
+    
+    def calculate_inellastic_energy_lost(self):
+        k_c = self.W_ci / self.energy
+        a = (self.energy / (self.energy + self.mc2))**2
+        continue_function = True
+        p_1 = k_c / (1 - 2 * k_c) * k_c**-2
+        p_2 = 2 / (1 - k_c)
+        
+        while continue_function:
+            U_1 = random.uniform(0, 1)
+            U_2 = random.uniform(0, 1)
+
+            if U_1 < p_1:
+                k = k_c / (1 - U_2 * (1 - 2 * k_c))
+            else:
+                k = k_c + (U_2 * (1 - 2 * k_c) / 2)
+
+            U_3 = random.uniform(0, 1)
+
+            if U_3 * self.calculate_phi_k(k_c, k, a) > self.calculate_f_in_k(k_c, k, a):
+                continue_function = False
+
+        W = k * self.energy
+        theta = np.arccos(np.sqrt((self.energy - W) / self.energy * (self.energy + 2 * self.mc2) / (self.energy - W + 2 * self.mc2)))
+
+        return W, theta
+
+
+
     def electron_simulation(self):
         continue_simulation = True
-        sigma_el_h = self.effective_section_el()
-        sigma_in_h = self.effective_section_in()
-        mu_t = self.attenuation_coefficient_calculation(sigma_el_h, sigma_in_h)
-        print(f"mu_t: {mu_t}")
-        s, U = self.free_way_until_next_interaction(mu_t)
-        print(f"s: {s}, U: {U}")
-        self.position, tau = self.move_electron(s)
-        print(f"Position: {self.position}")
-        if self.position[2] > 0:
-            chi, phi = self.angular_deflection(s, sigma_el_h)
-            print(f'Chi:{chi}')
-            w = self.calculate_energy_loss(s)
-            print(f"Energy lost: {w}")
-            self.direction = self.geometry.rotate_vector(self.direction_0, chi, phi)
-            print(f"New direction: {self.direction}")
-            self.energy = self.energy - w
-            if self.energy < self.medium.E_abs_el:
-                continue_simulation = False
-            else:
-                self.positon = self.move_electron(s - tau)
-                print(f"New position: {self.position}")
-                if self.position[2] < 0:
-                    print(f'Electron exited the permitted space at position {self.position}...')
+        while continue_simulation:
+            print(f"Energy electron: {self.energy}")
+            sigma_el_h = self.effective_section_el()
+            sigma_in_h = self.effective_section_in()
+            mu_t = self.attenuation_coefficient_calculation(sigma_el_h, sigma_in_h)
+            print(f"mu_t: {mu_t}")
+            s, U = self.free_way_until_next_interaction(mu_t)
+            self.position, tau = self.move_electron(s)
+            # print(f"Position: {self.position}")
+            if self.position[2] > 0:
+                chi, phi = self.angular_deflection(s, sigma_el_h)
+                # print(f'Chi:{chi}')
+                w = self.calculate_energy_loss(s)
+                print(f"Energy lost: {w}")
+                self.direction = self.geometry.rotate_vector(self.direction_0, chi, phi)
+                # print(f"New direction: {self.direction}")
+                self.energy = self.energy - w
+                if self.energy < self.medium.E_abs_el:
                     continue_simulation = False
                 else:
-                    
-        else:
-            print(f'Electron exited the permitted space at position {self.position}...')
-            continue_simulation = False
+                    self.positon = self.move_electron(s - tau)
+                    # print(f"New position: {self.position}")
+                    if self.position[2] < 0:
+                        print(f'Electron exited the permitted space at position {self.position}...')
+                        continue_simulation = False
+                    else:
+                        p_el = self.calculate_p_el(sigma_in_h, mu_t)
+                        p_in = self.calculate_p_in(sigma_in_h, mu_t)
+                        if U <= p_el: #Elástico
+                            theta = self.calculate_theta(U)
+                            phi = 2 * np.pi * U
+                            self.direction = self.geometry.rotate_vector(self.direction, theta, phi)
+                        else: #Inelástica
+                            W, theta = self.calculate_inellastic_energy_lost()
+                            self.direction = self.geometry.rotate_vector(self.direction, theta, phi)
+                            if self.energy > W:
+                                self.energy = self.energy - W
+                            else:
+                                self.energy = 0
+                                continue_simulation = False
+                        if self.energy <= self.medium.E_abs_el:
+                            continue_simulation = False
+            else:
+                print(f'Electron exited the permitted space at position {self.position}...')
+                continue_simulation = False
         
