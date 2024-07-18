@@ -2,20 +2,18 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-def theoretical_solution(N_p0, N_h0, lambda_p, lambda_h, t):
-    N_p_t = N_p0 * np.exp(-lambda_p * t)
-    term1 = N_p0 * (lambda_p / (lambda_h - lambda_p)) * (np.exp(-lambda_p * t) - np.exp(-lambda_h * t))
-    term2 = N_h0 * np.exp(-lambda_h * t)
-    N_h_t = term1 + term2
+def theoretical_solution(N_p, N_h1, lambda_p, lambda_h, dt):
+    N_p_t = N_p * (1 - lambda_p * dt)
+    N_h_t = N_h1 + (lambda_p * N_p * dt) - (lambda_h * N_h1 * dt)
     return N_p_t, N_h_t
 
 class RadioactiveDecayChainSimulation:
     def __init__(self, num_nuclei, decay_constants):
         self.num_nuclei = num_nuclei
         self.N_p0 = num_nuclei
-        self.N_h0 = 0
         self.N_p = self.N_p0
-        self.N_h = 0
+        self.N_h1 = 0
+        self.N_h2 = 0
         self.lambda_p, self.lambda_h = decay_constants
         
         # Initial state of nuclei: 2 for parent, 1 for first daughter, 0 for second daughter
@@ -27,7 +25,7 @@ class RadioactiveDecayChainSimulation:
         self.remaining_nuclei_history = [self.num_nuclei]
         self.state_distribution_history = [[np.sum(self.state == i) for i in range(0, 3)]]
         self.theoretical_N_p_history = [self.N_p]
-        self.theoretical_N_h_history = [self.N_h]
+        self.theoretical_N_h_history = [self.N_h1]
 
 
     def decay_nuclei_chain(self, dt):
@@ -36,9 +34,13 @@ class RadioactiveDecayChainSimulation:
             if current_state == 2:
                 if random.random() < (1 - np.exp(-self.lambda_p * dt)):
                     self.state[i] = 1
+                    self.N_p -= 1
+                    self.N_h1 += 1
             elif current_state == 1:
                 if random.random() < (1 - np.exp(-self.lambda_h * dt)):
                     self.state[i] = 0
+                    self.N_h2 += 1
+                    self.N_h1 -= 1
  
     def run_simulation_step(self):
         dt = 0.1
@@ -51,7 +53,7 @@ class RadioactiveDecayChainSimulation:
         self.state_distribution_history.append([np.sum(self.state == i) for i in range(0, 3)])
         
         # Update theoretical histories
-        N_p_t, N_h_t = theoretical_solution(self.N_p0, self.N_h0, self.lambda_p, self.lambda_h, self.time)
+        N_p_t, N_h_t = theoretical_solution(self.N_p, self.N_h1, self.lambda_p, self.lambda_h, dt)
         self.theoretical_N_p_history.append(N_p_t)
         self.theoretical_N_h_history.append(N_h_t)
 

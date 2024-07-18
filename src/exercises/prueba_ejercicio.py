@@ -11,37 +11,35 @@ def theoretical_solution(N_p0, N_h0, lambda_p, lambda_h, t):
     return N_p_t, N_h_t
 
 class RadioactiveDecayChainSimulation:
-    def __init__(self, N_p0, N_h0, decay_constants, dt=0.1):
+    def __init__(self, N_p0, N_h0, N_h20, decay_constants, dt=0.1):
         self.N_p0 = N_p0
         self.N_h0 = N_h0
+        self.N_h20 = N_h20
         self.lambda_p, self.lambda_h = decay_constants
         self.dt = dt
         self.time = 0
         self.N_p = N_p0
         self.N_h = N_h0
+        self.N_h2 = N_h20
+        self.N_ht_history = self.N_h + self.N_h2
         self.time_history = [self.time]
         self.N_p_history = [self.N_p]
         self.N_h_history = [self.N_h]
+        self.N_h2_history = [self.N_h2]
+        self.N_ht_history = [self.N_ht_history]
         self.theoretical_N_p_history = [self.N_p]
         self.theoretical_N_h_history = [self.N_h]
 
     def decay_step_stochastic(self):
-        decayed_p = 0
-        decayed_h = 0
-        
-        # Parent nuclei decay
         for _ in range(self.N_p):
             if np.random.rand() < 1 - np.exp(-self.lambda_p * self.dt):
-                decayed_p += 1
+                self.N_p -= 1
+                self.N_h += 1
         
-        # Daughter nuclei decay
         for _ in range(self.N_h):
             if np.random.rand() < 1 - np.exp(-self.lambda_h * self.dt):
-                decayed_h += 1
-
-        # Update counts after all decays are evaluated
-        self.N_p -= decayed_p
-        self.N_h += decayed_p - decayed_h  # Add new daughters, remove decayed daughters
+                self.N_h -= 1
+                self.N_h2 += 1
 
     def run_simulation(self, total_time):
         steps = int(total_time / self.dt)
@@ -51,6 +49,7 @@ class RadioactiveDecayChainSimulation:
             self.time_history.append(self.time)
             self.N_p_history.append(self.N_p)
             self.N_h_history.append(self.N_h)
+            self.N_h_history.append(self.N_h2)
             # Calculate the theoretical values at this time
             N_p_t, N_h_t = theoretical_solution(self.N_p0, self.N_h0, self.lambda_p, self.lambda_h, self.time)
             self.theoretical_N_p_history.append(N_p_t)
@@ -59,6 +58,7 @@ class RadioactiveDecayChainSimulation:
     def plot_simulation(self):
         plt.plot(self.time_history, self.N_p_history, label='Simulated N_p (Stochastic)')
         plt.plot(self.time_history, self.N_h_history, label='Simulated N_h (Stochastic)')
+        plt.plot(self.time_history, self.N_h2_history, label='Simulated N_h2 (Stochastic)')
         plt.plot(self.time_history, self.theoretical_N_p_history, '--', label='Theoretical N_p')
         plt.plot(self.time_history, self.theoretical_N_h_history, '--', label='Theoretical N_h')
         plt.xlabel('Time')
@@ -68,12 +68,12 @@ class RadioactiveDecayChainSimulation:
         plt.grid(True)
         plt.show()
 
-# Example usage
-N_p0 = 100000  # initial number of parent nuclei
-N_h0 = 0       # initial number of daughter nuclei
-decay_constants = [0.693 / 5, 0.693 / 10]  # decay constants for parent and daughter nuclei
-total_time = 100  # total time to simulate
+N_p0 = 100000  
+N_h0 = 0       
+N_h20 = 0
+decay_constants = [0.693 / 5, 0.693 / 10]  
+total_time = 100  
 
-simulation = RadioactiveDecayChainSimulation(N_p0, N_h0, decay_constants)
+simulation = RadioactiveDecayChainSimulation(N_p0, N_h0, N_h20, decay_constants)
 simulation.run_simulation(total_time)
 simulation.plot_simulation()
