@@ -13,8 +13,6 @@ def capa_seleccionada(energia):
         energia_electron = energia
     return energia_electron
 
-def angulo_azimutal():
-    return 2 * math.pi * random.uniform(0, 1)
 
 def angulo_polar(energia_electron):
     beta = math.sqrt(energia_electron * (energia_electron + 2 * 510.999)) / (energia_electron + 510.999)

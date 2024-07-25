@@ -15,4 +15,4 @@ def mover(posicion, direccion, s, particula):
     
     posicion = tuple(np.array(posicion) + s * np.array(direccion))
 
-    return posicion
+    return posicion, s

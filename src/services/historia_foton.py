@@ -1,9 +1,11 @@
 from src.properties.foton import propiedades_iniciales_foton
 from src.properties.medio import propiedades_medio
 from src.properties.electron import propiedades_electron
+from src.services.historia_electron import historia_electron
+from src.utils.comunes.calcular_angulos import angulo_azimutal
 from src.utils.comunes.camino_libre import libre_hasta_siguiente_interaccion
 from src.utils.foton.coeficientes_atenuacion import calcular_coeficiente_atenuacion, seccion_eficaz_compton, seccion_eficaz_fotoelectrico
-from src.utils.foton.efecto_fotoelectrico import angulo_azimutal, angulo_polar, capa_seleccionada
+from src.utils.foton.efecto_fotoelectrico import angulo_polar, capa_seleccionada
 from src.utils.comunes.movimiento_direccion import mover
 from src.utils.foton.probabilidades_scattering import simular_evento_de_dispersion
 from src.utils.foton.scattering_compton import angulos_foton_electron_dispersado, calcular_energia_electron, calcular_energia_foton, calcular_theta_electron
@@ -39,7 +41,7 @@ def historia_foton():
         print(f"mu_T: {mu_T}")
         s, U = libre_hasta_siguiente_interaccion(mu_T)
         print(f"Camino libre: {s}cm")
-        posicion = mover(posicion, direccion, s, 'foton')
+        posicion, value = mover(posicion, direccion, s, 'foton')
         if posicion[2] < 0:
             continuar_simulacion = False
             print(f"El fotón ha salido del volumen de estudio en {posicion}")
@@ -62,7 +64,7 @@ def historia_foton():
                     theta_electron = angulo_polar(energia_electron)
                     direccion_electron = rotar_vector_direccion(direccion, theta_electron, phi_electron)
                     print(f"angulo azimutal: {phi_electron}, ángulo polar: {theta_electron}")
-                    electron_data_after = historia_electron()
+                    electron_data_after = historia_electron(posicion, direccion_electron, energia_electron)
                 energia_foton = 0
                 continuar_simulacion = False    
 
@@ -84,7 +86,7 @@ def historia_foton():
                     pass
                 else:
                     direccion_electron = rotar_vector_direccion(direccion, theta_electron, phi_electron)
-                    electron_data_after = historia_electron()
+                    electron_data_after = historia_electron(posicion, direccion_electron, energia_electron)
                     
                 if energia_foton <= propiedades_iniciales_foton['energia_abs']:
                     print("Fotón absorbido")
