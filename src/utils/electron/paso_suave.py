@@ -3,7 +3,7 @@ from src.properties.electron import propiedades_electron
 import math
 import random
 
-def deflexion_angular(energia, s, sigma_el_h):
+def deflexion_angular(energia, s):
     """
     Calcular la deflexión angular del electrón después de una colisión.
 

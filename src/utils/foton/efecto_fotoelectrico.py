@@ -16,12 +16,12 @@ def capa_seleccionada(energia):
 
 def angulo_polar(energia_electron):
     beta = math.sqrt(energia_electron * (energia_electron + 2 * 510.999)) / (energia_electron + 510.999)
-    A = 1 / beta -1
+    A = (1 / beta) -1
     gamma = 1 + (energia_electron / 510.999)
     valid = False
     
     def g(v):
-        return (2 - v) * ((1 / (A + v)) + (1 / 2 + beta * gamma * (gamma - 1)) * (gamma - 2))
+        return (2 - v) * ((1 / (A + v)) + (1 / 2 * beta * gamma * (gamma - 1)) * (gamma - 2))
     
     while not valid:
         U_1 = random.uniform(0,1)

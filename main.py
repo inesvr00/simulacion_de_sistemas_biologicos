@@ -1,4 +1,7 @@
-from src.services.historia_foton import historia_foton
+from src.services.analisis import analisis
+from src.services.historia_completa_dataframes import historia_completa_dataframe
 
 
-historia_foton()
+if __name__ == '__main__':
+    historia_completa_dataframe()
+    analisis()

@@ -98,7 +98,7 @@ class PhotonProperties:
         
         return p_photo, p_co
         
-    def move_photon(self, s):
+    def move_photon(self, s): 
         """
         Move the photon a distance s in its current direction. 
         

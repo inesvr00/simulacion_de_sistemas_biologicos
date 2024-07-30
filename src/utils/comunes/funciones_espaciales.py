@@ -38,7 +38,6 @@ def rotar_vector_direccion(vector_original, theta, phi):
     else:
         # Extraer componentes individuales del vector original
         u, v, w = vector_original
-        print(vector_original)
 
         # Calcular los nuevos componentes del vector después de la rotación
         u_prima = u * np.cos(theta) + (u * v * np.cos(phi) - v * np.sin(phi)) * np.sin(theta) / np.sqrt(1 - w**2)

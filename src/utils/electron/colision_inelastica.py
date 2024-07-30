@@ -11,10 +11,9 @@ def calcular_energia_perdida_inelastica(energia):
     """
     mc2 = 510.999
     k_c = propiedades_electron['W_ci'] / energia
-    print("ESTO ES K_C")
-    print(k_c)
+
     a = (energia / (energia + mc2))**2
-    print(f"a: {a}")
+
     continuar_funcion = True
     p_1 = k_c / (1 - 2 * k_c) * k_c**(-2)
     p_2 = 2 / (1 - 2 * k_c)
