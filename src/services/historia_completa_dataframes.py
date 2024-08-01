@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 
 from src.services.historia_foton import historia_foton
-from src.properties.foton import propiedades_iniciales_foton
+from src.propiedades.foton import propiedades_iniciales_foton
 
 
 def historia_completa_dataframe():

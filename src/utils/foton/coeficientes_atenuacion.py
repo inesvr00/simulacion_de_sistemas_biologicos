@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from src.properties.medio import propiedades_medio
+from src.propiedades.medio import propiedades_medio
 
 def calcular_coeficiente_atenuacion(seccion_eficaz_fotoelectrica, seccion_eficaz_compton):
     """

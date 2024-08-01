@@ -1,4 +1,4 @@
-from src.properties.medio import propiedades_medio
+from src.propiedades.medio import propiedades_medio
 
 
 def calcular_p_el(sigma_el_h, mu_t):

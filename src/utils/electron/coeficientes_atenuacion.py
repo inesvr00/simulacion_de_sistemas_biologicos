@@ -1,5 +1,5 @@
-from src.properties.medio import propiedades_medio
-from src.properties.electron import propiedades_electron
+from src.propiedades.medio import propiedades_medio
+from src.propiedades.electron import propiedades_electron
 import math
 
 def calculo_coeficiente_atenuacion(sigma_el_h, sigma_in_h ):

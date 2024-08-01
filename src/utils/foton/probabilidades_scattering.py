@@ -1,4 +1,4 @@
-from src.properties.medio import propiedades_medio
+from src.propiedades.medio import propiedades_medio
 
 
 def simular_evento_de_dispersion(seccion_eficaz_fotoelectrica, seccion_eficaz_compton, mu_T):

@@ -8,7 +8,7 @@ from src.utils.electron.calcular_angulos import calcular_theta_elastico
 from src.utils.electron.coeficientes_atenuacion import calculo_coeficiente_atenuacion, seccion_eficaz_el, seccion_eficaz_in
 from src.utils.electron.colision_inelastica import calcular_energia_perdida_inelastica
 from src.utils.electron.paso_suave import calcular_perdida_energia, deflexion_angular
-from src.properties.electron import propiedades_electron
+from src.propiedades.electron import propiedades_electron
 from src.utils.electron.probabilidades_colision import calcular_p_el, calcular_p_in
 import pandas as pd
 
@@ -91,7 +91,9 @@ def historia_electron(posicion, direccion, energia):
                             energia = energia - W
                             df_dosis = añadir_dosis(df_dosis, W, posicion[2])
                         else:
+                            df_dosis = añadir_dosis(df_dosis, energia, posicion[2])
                             energia = 0
+                            
                         
                         # W se deposita en el medio en posición
                         if energia < propiedades_electron['energia_abs']:

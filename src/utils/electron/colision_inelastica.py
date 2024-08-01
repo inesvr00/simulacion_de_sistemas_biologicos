@@ -1,7 +1,7 @@
 import random
 import math
 import numpy as np
-from src.properties.electron import propiedades_electron
+from src.propiedades.electron import propiedades_electron
 
 def calcular_energia_perdida_inelastica(energia):
     """
