@@ -73,6 +73,7 @@ def historia_foton():
                 if energia_electron <= propiedades_electron['energia_abs']:
                     # Electrón absorbido, energía electrón depositada en posición
                     # print("Electrón absorbido")
+                    n_electron_absorbido += 1
                     df_dosis = añadir_dosis(df_dosis, energia_electron, posicion[2])
                     pass
                 else:
@@ -105,6 +106,7 @@ def historia_foton():
 
                 if energia_electron <= propiedades_electron['energia_abs']:
                     # Electrón absorbido, energía electrón depositada en posición
+                    n_electron_absorbido += 1
                     df_dosis = añadir_dosis(df_dosis, energia_electron, posicion[2])
                     pass
                 else:

@@ -16,7 +16,7 @@ def analisis():
             print(f"No se encontró ningún archivo que comience con '{prefijo}' en el directorio especificado.")
             return None
 
-    directorio_base = "/home/ines/simulacion_de_sistemas_biologicos/out/csv/"
+    directorio_base = "/home/debian/dev/simulacion_de_sistemas_biologicos/out/csv"
     prefijos = ["compton_foto", "elastico_inelastico", "electron_generado", "dosis", "kerma", "energia_suave"]
 
     dataframes = {}
@@ -71,15 +71,15 @@ def analisis():
     E_0 = 500
     comprobacion_energia_paso_suave(df_energia_suave, n_fotones)
     plot_histogram(df_energia_suave, "r")
-    plot_histograma_kerma_dosis(df_kerma, "kerma_0_10", n_fotones, E_0, 0, 10)
-    plot_histograma_kerma_dosis(df_dosis, "dosis_0_10", n_fotones, E_0, 0, 10)
-    plot_kerma_y_dosis(df_dosis, df_kerma, n_fotones, E_0, 0, 10)
+    # plot_histograma_kerma_dosis(df_kerma, "kerma_0_10", n_fotones, E_0, 0, 10)
+    # plot_histograma_kerma_dosis(df_dosis, "dosis_0_10", n_fotones, E_0, 0, 10)
+    # plot_kerma_y_dosis(df_dosis, df_kerma, n_fotones, E_0, 0, 10)
     plot_kerma_y_dosis(df_dosis, df_kerma, n_fotones, E_0, 0, 100)
-    plot_kerma_y_dosis(df_dosis, df_kerma, n_fotones, E_0, 0, 0.5)
-    plot_histograma_kerma_dosis(df_kerma, "kerma_0_05", n_fotones, E_0, 0, 0.5)
-    plot_histograma_kerma_dosis(df_dosis, "dosis_0_05", n_fotones, E_0, 0, 0.5)
-    plot_histograma_kerma_dosis(df_kerma, "kerma", n_fotones, E_0, 0, 500)
-    plot_histograma_kerma_dosis(df_dosis, "dosis", n_fotones, E_0, 0, 500)
+    # plot_kerma_y_dosis(df_dosis, df_kerma, n_fotones, E_0, 0, 0.5)
+    # plot_histograma_kerma_dosis(df_kerma, "kerma_0_05", n_fotones, E_0, 0, 0.5)
+    # plot_histograma_kerma_dosis(df_dosis, "dosis_0_05", n_fotones, E_0, 0, 0.5)
+    plot_histograma_kerma_dosis(df_kerma, "kerma", None, E_0, 0, 500)
+    plot_histograma_kerma_dosis(df_dosis, "dosis", None, E_0, 0, 500)
     
     rango_efectivo, z_cruzamiento1, z_cruzamiento2 = calcular_rango_efectivo(df_kerma, df_dosis)
 

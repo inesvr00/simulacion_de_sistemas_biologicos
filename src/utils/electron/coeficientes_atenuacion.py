@@ -25,7 +25,6 @@ def seccion_eficaz_el(energia):
     mu_c = (1 - math.cos(propiedades_electron['theta_c'])) / 2
     
     sigma_el_h = sigma_el * A_0 * ((1 - mu_c) / (mu_c + A_0))
-    # print(f"sigma_el_h: {sigma_el_h}")
     return sigma_el_h
 
 def seccion_eficaz_in(energia):
@@ -49,5 +48,4 @@ def seccion_eficaz_in(energia):
     
     integrand_value =  integrand(energia / 2) - integrand(propiedades_electron['W_ci'])
     sigma_in_h = propiedades_medio['numero_atomico'] * 2 * math.pi * re**2 * mc2 / beta**2 * integrand_value
-    # print(f"sigma_in_h: {sigma_in_h}")
     return sigma_in_h     
