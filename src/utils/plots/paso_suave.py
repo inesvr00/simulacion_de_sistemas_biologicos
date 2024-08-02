@@ -17,4 +17,4 @@ def plot_histogram(df, column, bins=100):
     plt.ylabel('Frecuencia')
     plt.title(f'Histograma de {column}')
 
-    plt.savefig('/home/ines/simulacion_de_sistemas_biologicos/out/plots/histograma_paso_suave.png')
+    plt.savefig('out/plots/histograma_paso_suave.png')

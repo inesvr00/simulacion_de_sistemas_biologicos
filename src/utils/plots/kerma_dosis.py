@@ -15,7 +15,7 @@ def plot_histograma_kerma_dosis(df, nombre, N=None, E_0=None, min=None, max=None
     plt.ylabel('Suma de la energía')
     plt.title(f'Histograma de {nombre}')
     plt.grid(True)
-    plt.savefig(f'/home/ines/simulacion_de_sistemas_biologicos/out/plots/{nombre}.png')
+    plt.savefig(f'out/plots/{nombre}.png')
     
 def plot_kerma_y_dosis(df_dosis, df_kerma, N, E_0, min, max):
     # Definir el número de bins y calcular el histograma
@@ -56,5 +56,5 @@ def plot_kerma_y_dosis(df_dosis, df_kerma, N, E_0, min, max):
     plt.title('Histograma del Kerma y la Dosis con ajustes')
     plt.legend()
     plt.grid(True)
-    plt.savefig(f'/home/ines/simulacion_de_sistemas_biologicos/out/plots/dosis_kerma_fits.png')
+    plt.savefig(f'out/plots/dosis_kerma_fits.png')
     plt.show()

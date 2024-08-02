@@ -16,7 +16,7 @@ def analisis():
             print(f"No se encontró ningún archivo que comience con '{prefijo}' en el directorio especificado.")
             return None
 
-    directorio_base = "/home/ines/simulacion_de_sistemas_biologicos/out/csv/"
+    directorio_base = "out/csv"
     prefijos = ["compton_foto", "elastico_inelastico", "electron_generado", "dosis", "kerma", "energia_suave"]
 
     dataframes = {}
@@ -67,7 +67,7 @@ def analisis():
     print("Media colisiones inelásticas por electrón:", media_inelastico)
     print("Error estándar de la media colisiones inelásticas por electrón:", sem_inelastico)
     
-    n_fotones = 100000
+    n_fotones = 100
     E_0 = 500
     comprobacion_energia_paso_suave(df_energia_suave, n_fotones)
     plot_histogram(df_energia_suave, "r")
