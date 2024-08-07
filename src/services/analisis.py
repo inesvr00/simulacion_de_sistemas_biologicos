@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-
 from src.utils.analisis.paso_suave import comprobacion_energia_paso_suave
 from src.utils.analisis.rango_efectivo import calcular_rango_efectivo
 from src.utils.plots.kerma_dosis import plot_histograma_kerma_dosis, plot_kerma_y_dosis
@@ -17,7 +16,7 @@ def analisis():
             return None
 
     directorio_base = "out/csv"
-    prefijos = ["compton_foto", "elastico_inelastico", "electron_generado", "dosis", "kerma", "energia_suave"]
+    prefijos = ["compton_foto", "elastico_inelastico", "electron_generado", "dosis_nueva", "kerma", "energia_suave"]
 
     dataframes = {}
 
@@ -30,10 +29,10 @@ def analisis():
     data_compton_foto = dataframes.get("compton_foto")
     data_elastico_inelastico = dataframes.get("elastico_inelastico")
     data_electron = dataframes.get("electron_generado")
-    df_dosis = dataframes.get("dosis")
+    df_dosis = dataframes.get("dosis_nueva")
     df_kerma = dataframes.get("kerma")
     df_energia_suave = dataframes.get("energia_suave")
-    
+
     print(data_compton_foto.head())
     print(data_compton_foto.dtypes)
     suma_compton = data_compton_foto['compton'].sum()
@@ -66,8 +65,8 @@ def analisis():
     print("Error estándar de la media colisiones elásticas por electrón:", sem_elastico)
     print("Media colisiones inelásticas por electrón:", media_inelastico)
     print("Error estándar de la media colisiones inelásticas por electrón:", sem_inelastico)
-    
-    n_fotones = 1000000
+
+    n_fotones = 500000
     E_0 = 500
     comprobacion_energia_paso_suave(df_energia_suave, n_fotones)
     plot_histogram(df_energia_suave, "r")
@@ -80,7 +79,7 @@ def analisis():
     plot_histograma_kerma_dosis(df_dosis, "dosis_0_05", n_fotones, E_0, 0, 0.5)
     plot_histograma_kerma_dosis(df_kerma, "kerma", n_fotones, E_0, 0, 500)
     plot_histograma_kerma_dosis(df_dosis, "dosis", n_fotones, E_0, 0, 500)
-    
+
     rango_efectivo, z_cruzamiento1, z_cruzamiento2 = calcular_rango_efectivo(df_kerma, df_dosis)
 
     print(f"Rango efectivo de los electrones (Re): {rango_efectivo}")

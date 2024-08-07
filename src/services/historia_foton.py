@@ -38,7 +38,6 @@ def historia_foton():
         theta_electron = None
         phi_electron = None
         direccion_electron = None
-        posicion_electron = None
         
         theta_foton = None
         phi_foton = None
@@ -73,6 +72,7 @@ def historia_foton():
                 if energia_electron <= propiedades_electron['energia_abs']:
                     # Electrón absorbido, energía electrón depositada en posición
                     # print("Electrón absorbido")
+                    n_electron_absorbido += 1
                     df_dosis = añadir_dosis(df_dosis, energia_electron, posicion[2])
                     pass
                 else:
@@ -105,6 +105,7 @@ def historia_foton():
 
                 if energia_electron <= propiedades_electron['energia_abs']:
                     # Electrón absorbido, energía electrón depositada en posición
+                    n_electron_absorbido += 1
                     df_dosis = añadir_dosis(df_dosis, energia_electron, posicion[2])
                     pass
                 else:
@@ -113,7 +114,7 @@ def historia_foton():
                     df_energia_suave, df_nueva_dosis, n_elastico, n_inelastico = historia_electron(posicion, direccion_electron, energia_electron)
                     df_dosis = pd.concat([df_dosis, df_nueva_dosis], ignore_index=True)
                     df_elastico_inelastico = añadir_dosis(df_elastico_inelastico, n_elastico, n_inelastico)
-                    
+
                 if energia_foton <= propiedades_iniciales_foton['energia_abs']:
                     # print("Fotón absorbido")
                     # Fotón absorbido
@@ -122,7 +123,7 @@ def historia_foton():
                 else:
                     direccion = rotar_vector_direccion(direccion, theta_foton, phi_foton)
             energia = energia_foton
-            
+
         # print(f"Número del electrón: {n_electron}")
         # print(f"Datos del electrón -> Dirección: {direccion_electron}, Energía: {energia_electron}")
         # print(f"Datos del fotón -> Posicón: {posicion}, Dirección: {direccion}, Energía: {energia}")

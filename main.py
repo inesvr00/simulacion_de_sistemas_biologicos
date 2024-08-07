@@ -5,6 +5,6 @@ import warnings
 
 if __name__ == '__main__':
     warnings.simplefilter(action='ignore', category=FutureWarning)
-    
+
     historia_completa_dataframe()
     analisis()
