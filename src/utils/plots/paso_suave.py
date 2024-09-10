@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 
+
 def plot_histogram(df, column, bins=100):
     """
     Función para trazar un histograma de una columna de un DataFrame.
@@ -10,11 +11,11 @@ def plot_histogram(df, column, bins=100):
         - bins: Número de contenedores para el histograma (opcional, por defecto 10).
     """
     data = df[column]
-    
-    plt.hist(data, bins=bins)
-    
+
+    plt.hist(data, bins=bins, density=True, alpha=0.75)
+
     plt.xlabel(column)
-    plt.ylabel('Frecuencia')
+    plt.ylabel('Porcentaje de frecuencia / %')
     plt.title(f'Histograma de {column}')
 
     plt.savefig('out/plots/histograma_paso_suave.png')

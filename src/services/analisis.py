@@ -66,7 +66,7 @@ def analisis():
     print("Media colisiones inelásticas por electrón:", media_inelastico)
     print("Error estándar de la media colisiones inelásticas por electrón:", sem_inelastico)
 
-    n_fotones = 500000
+    n_fotones = 1000000
     E_0 = 500
     comprobacion_energia_paso_suave(df_energia_suave, n_fotones)
     plot_histogram(df_energia_suave, "r")
@@ -80,8 +80,6 @@ def analisis():
     plot_histograma_kerma_dosis(df_kerma, "kerma", n_fotones, E_0, 0, 500)
     plot_histograma_kerma_dosis(df_dosis, "dosis", n_fotones, E_0, 0, 500)
 
-    rango_efectivo, z_cruzamiento1, z_cruzamiento2 = calcular_rango_efectivo(df_kerma, df_dosis)
+    rango_efectivo = calcular_rango_efectivo(df_kerma, df_dosis)
 
     print(f"Rango efectivo de los electrones (Re): {rango_efectivo}")
-    print(f"Primera intersección (z1): {z_cruzamiento1}")
-    print(f"Segunda intersección (z2): {z_cruzamiento2}")
